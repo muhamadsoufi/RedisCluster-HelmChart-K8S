@@ -1,0 +1,23 @@
+replicaCount: 3
+
+image:
+  repository: redis
+  tag: "6.2.6"
+
+service:
+  type: ClusterIP
+  port: 6379
+  gossipPort: 16379
+
+configMap:
+  redisConf: |
+    cluster-enabled yes
+    cluster-require-full-coverage no
+    cluster-node-timeout 15000
+    cluster-config-file nodes.conf
+    cluster-migration-barrier 1
+    appendonly yes
+    protected-mode no
+
+persistentVolume:
+  size: 10Gi

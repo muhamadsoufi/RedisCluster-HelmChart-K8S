@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  serviceName: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: redis
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        ports:
+        - containerPort: {{ .Values.service.port }}
+        - containerPort: {{ .Values.service.gossipPort }}
+        command:
+        - sh
+        - -c
+        - "redis-server /conf/redis.conf"
+        readinessProbe:
+          exec:
+            command:
+            - redis-cli
+            - -h
+            - $(hostname)
+            - ping
+          initialDelaySeconds: 20
+          periodSeconds: 3
+        volumeMounts:
+        - name: conf
+          mountPath: /conf
+        - name: podinfo
+          mountPath: /etc/podinfo
+      initContainers:
+      - name: init-redis-cluster
+        image: busybox:1.28
+        command:
+        - sh
+        - -c
+        - "until nslookup {{ .Release.Name }}.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local; do echo waiting for redis-cluster; sleep 2; done"
+      volumes:
+      - name: conf
+        configMap:
+          name: {{ .Release.Name }}-config
+          items:
+          - key: redis.conf
+            path: redis.conf
+          - key: bootstrap-pod.sh
+            path: bootstrap-pod.sh
+      - name: podinfo
+        downwardAPI:
+          items:
+          - path: "labels"
+            fieldRef:
+              fieldPath: metadata.labels
+          - path: "annotations"
+            fieldRef:
+              fieldPath: metadata.annotations
+          - path: "pod_name"
+            fieldRef:
+              fieldPath: metadata.name
+          - path: "pod_namespace"
+            fieldRef:
+              fieldPath: metadata.namespace
+  volumeClaimTemplates:
+  - metadata:
+      name: datadir
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: {{ .Values.persistentVolume.size }}

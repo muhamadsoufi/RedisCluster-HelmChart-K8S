@@ -21,3 +21,4 @@ configMap:
 
 persistentVolume:
   size: 10Gi
+  storageClassName: nfs-client

@@ -13,12 +13,12 @@ This repository contains a Helm chart for deploying a Redis cluster.
 1. Clone this repository:
     ```bash
     git clone https://github.com/muhamadsoufi/RedisCluster-HelmChart-K8S.git
-    cd your-repo-name
+    cd ./RedisCluster-HelmChart-K8S
     ```
 
 2. Install the Helm chart:
     ```bash
-    helm install redis-cluster ./redis-cluster-chart
+    helm install redis-cluster ./RedisCluster-HelmChart-K8S
     ```
 
     This will install the Redis cluster in your Kubernetes cluster using the default values.
@@ -26,13 +26,13 @@ This repository contains a Helm chart for deploying a Redis cluster.
 3. Customize your installation (optional):
     You can customize the installation by modifying the `values.yaml` file or by providing your own values file during installation:
     ```bash
-    helm install redis-cluster ./redis-cluster-chart -f custom-values.yaml
+    helm install redis-cluster ./RedisCluster-HelmChart-K8S -f custom-values.yaml
     ```
 
 4. Upgrade the chart:
     If you make changes to the `values.yaml` or the chart itself, you can upgrade the release:
     ```bash
-    helm upgrade redis-cluster ./redis-cluster-chart
+    helm upgrade redis-cluster ./RedisCluster-HelmChart-K8S
     ```
 
 5. Uninstall the chart:
